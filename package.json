@@ -14,6 +14,7 @@
     "coverage": "istanbul cover _mocha -- --recursive && istanbul check-coverage coverage/coverage.json",
     "lint": "jscs source/ test/ && jshint .",
     "pre-commit": "npm run lint && npm run coverage",
-    "test": "mocha"
+    "test": "mocha",
+    "travis-ci": "npm run pre-commit"
   }
 }
