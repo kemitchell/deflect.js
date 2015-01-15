@@ -5,7 +5,7 @@ var root = this;
 
 // Call a handler function with a callback that invokes a provided
 // function, or the next function from the stack.
-var invoke = module.exports = function(
+var recurse = module.exports = function(
   error,
   environment,
   responseObject,
@@ -15,38 +15,43 @@ var invoke = module.exports = function(
 ) {
     var nextFunction = trapErrors(functions[0]);
     var remainingFunctions = functions.slice(1);
+    var callback;
 
-    var callback = callOnce(
-      function(newError, newEnvironment, newResponse, newFunction) {
-        if (arguments.length < 1) {
-          invoke(
-            error,
-            environment,
-            responseObject,
-            remainingFunctions,
-            incomingMessage,
-            serverResponse
-          );
-        } else {
-          if (newFunction) {
-            if (Array.isArray(newFunction)) {
-              remainingFunctions = newFunction
-                .concat(remainingFunctions);
-            } else {
-              remainingFunctions.unshift(newFunction);
+    if (remainingFunctions.length === 0) {
+      callback = callOnce(function() {});
+    } else {
+      callback = callOnce(
+        function(newError, newEnvironment, newResponse, newFunction) {
+          if (arguments.length < 1) {
+            recurse(
+              error,
+              environment,
+              responseObject,
+              remainingFunctions,
+              incomingMessage,
+              serverResponse
+            );
+          } else {
+            if (newFunction) {
+              if (Array.isArray(newFunction)) {
+                remainingFunctions = newFunction
+                  .concat(remainingFunctions);
+              } else {
+                remainingFunctions.unshift(newFunction);
+              }
             }
+            recurse(
+              newError,
+              newEnvironment,
+              newResponse,
+              remainingFunctions,
+              incomingMessage,
+              serverResponse
+            );
           }
-          invoke(
-            newError,
-            newEnvironment,
-            newResponse,
-            remainingFunctions,
-            incomingMessage,
-            serverResponse
-          );
         }
-      }
-    );
+      );
+    }
 
     nextFunction.call(
       root,

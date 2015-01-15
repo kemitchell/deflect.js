@@ -10,7 +10,9 @@ module.exports = function(functions) {
 
   return function(incomingMessage, serverResponse) {
     functions.push(
-      function(error, environment, incomingMessage, responseObject) {
+      function(
+        error, environment, incomingMessage, responseObject, next
+      ) {
         if (responseObject) {
           // Send the response.
           applyResponse(responseObject, serverResponse);
@@ -18,6 +20,7 @@ module.exports = function(functions) {
           // Respond 404.
           applyResponse({ status: 404 }, serverResponse);
         }
+        next();
       }
     );
 
