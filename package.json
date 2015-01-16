@@ -1,8 +1,25 @@
 {
   "name": "deflect",
-  "description": "functional composition of HTTP servers",
+  "description": "dynamic stacks of error-first continuation passing functions",
   "version": "0.0.0",
   "main": "deflect.js",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Kyle E. Mitchell",
+    "email": "kyle@kemitchell.com",
+    "url": "http://kemitchell.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kemitchell/deflect.js.git"
+  },
+  "homepage": "https://github.com/kemitchell/deflect.js",
+  "keywords": [
+    "functions",
+    "callbacks",
+    "continuation passing style",
+    "asynchronous"
+  ],
   "devDependencies": {
     "chai": "^1.10.0",
     "mocha": "^2.1.0",
