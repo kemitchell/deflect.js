@@ -1,4 +1,4 @@
-/* jshint mocha: true */
+/* jshint node: true, mocha: true */
 var semver = require('semver');
 var expect = require('chai').expect;
 
