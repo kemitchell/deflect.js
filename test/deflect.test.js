@@ -20,12 +20,13 @@ describe('Deflect', function() {
         next(null, string);
       },
       function(error, value, next) {
-        next(error, value);
+        next();
+      },
+      function(error, value, next) {
+        expect(value).to.eql(string);
+        next();
       }
-    )(null, function(error, data) {
-      expect(data).to.eql(string);
-      done();
-    });
+    )(null, done);
   });
 
   it('throws when a callback is called more than once', function(done) {
@@ -50,7 +51,7 @@ describe('Deflect', function() {
         },
         function(error, list, next) {
           expect(list).to.eql([ 'A', 'B' ]);
-          next(error, list);
+          next();
         }
       )(null, [], done);
     });
@@ -70,9 +71,24 @@ describe('Deflect', function() {
         },
         function(error, list, next) {
           expect(list).to.eql([ 'A', 'B', 'C' ]);
-          next(error, list);
+          next();
         }
       )(null, [], done);
+    });
+  });
+
+  describe('next()', function() {
+    it('recycles arguments for the next function', function(done) {
+      var value = 'arbitrary';
+      deflect(
+        function(error, x, next) {
+          next();
+        },
+        function(error, x, next) {
+          expect(x).to.equal(value);
+          next();
+        }
+      )(null, value, done);
     });
   });
 
@@ -85,7 +101,7 @@ describe('Deflect', function() {
         },
         function(error, next) {
           expect(error.message).to.equal(message);
-          next();
+          next(null);
         }
       )(done);
     });
@@ -98,7 +114,7 @@ describe('Deflect', function() {
         },
         function(error, next) {
           expect(error.message).to.equal(message);
-          next();
+          next(null);
         }
       )(done);
     });

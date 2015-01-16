@@ -59,8 +59,8 @@
       var remainingFunctions = functionStack.slice(1);
 
       return function() {
-        var argumentsArray = toArray(arguments);
-        var finalCallback = argumentsArray.pop();
+        var invocationArguments = toArray(arguments);
+        var finalCallback = invocationArguments.pop();
         if (typeof finalCallback !== 'function') {
           throw new Error('No callback provided');
         }
@@ -70,7 +70,17 @@
         // should call the final callback provided when the stack
         // function was called.
         if (remainingFunctions.length === 0) {
-          nextCallback = once(finalCallback);
+          nextCallback = once(function() {
+            var callbackArguments = toArray(arguments);
+
+            // If the callback is called with no arguments, pass the
+            // same list of arguments to the next function.
+            if(callbackArguments.length === 0) {
+              callbackArguments = invocationArguments;
+            }
+
+            finalCallback.apply(root, callbackArguments);
+          });
 
         // There are still functions on the stack, so the callback
         // for the next function should continue to invoke them.
@@ -78,11 +88,16 @@
           nextCallback = once(function() {
             var callbackArguments = toArray(arguments);
 
+            // If the callback is called with no arguments, pass the
+            // same list of arguments to the next function.
+            if(callbackArguments.length === 0) {
+              callbackArguments = invocationArguments;
+
             // If the first argument a function passes to its callback
             // is a function, rather than an error, that function is
             // unshifted onto the front of the stack, so it will be
             // executed next.
-            if (typeof callbackArguments[0] === 'function') {
+            } else if (typeof callbackArguments[0] === 'function') {
               var deflectedFunction = callbackArguments.shift();
               remainingFunctions.unshift(deflectedFunction);
             }
@@ -99,7 +114,7 @@
         // Invoke the function at the top of the stack, trapping errors
         // and providing the created callback function.
         trapErrors(nextFunction)
-          .apply(root, argumentsArray.concat(nextCallback));
+          .apply(root, invocationArguments.concat(nextCallback));
       };
     };
 

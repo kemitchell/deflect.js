@@ -29,17 +29,17 @@ describe('HTTP Server Example', function() {
             string.length > prefixLength;
         };
 
-        return function(error, incomingMessage, response, next) {
-          var url = incomingMessage.url;
+        return function(error, request, response, next) {
+          var url = request.url;
           if (error || !prefixedBy(url, '/resource/')) {
-            next(error, incomingMessage, response);
+            next();
           } else {
             var key = url.substring(url.lastIndexOf('/') + 1);
             getValueAsync(key, function(dbError, value) {
               if (dbError) {
-                next(dbError, incomingMessage, null);
+                next(dbError, request, null);
               } else {
-                next(null, incomingMessage, value);
+                next(null, request, value);
               }
             });
           }
@@ -48,29 +48,29 @@ describe('HTTP Server Example', function() {
 
       // If `response` is a JavaScript object, transform it into an
       // object describing status code, headers, and response body.
-      function(error, incomingMessage, response, next) {
+      function(error, request, response, next) {
         if (response && !response.status) {
-          var object = response;
-          response = {
+          next(error, request, {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(object)
-          };
+            body: JSON.stringify(response)
+          });
+        } else {
+          next();
         }
-        next(error, incomingMessage, response);
       },
 
       // Backstop handler
-      function(error, incomingMessage, response, next) {
+      function(error, request, response, next) {
         // If there's an error that hasn't been handled, respond 500.
         if (error) {
-          next(null, incomingMessage, { status: 500 });
+          next(null, request, { status: 500 });
         // If there's no error but no response, either, respond 404.
         } else if (!response) {
-          next(error, incomingMessage, { status: 404 });
+          next(error, request, { status: 404 });
         // Otherwise, pass through.
         } else {
-          next(error, incomingMessage, response);
+          next();
         }
       }
     );
@@ -78,10 +78,10 @@ describe('HTTP Server Example', function() {
     this.app = supertest(function(incomingMessage, serverResponse) {
       handlerStack(
         null, // no error to start
-        incomingMessage,
+        { url: incomingMessage.url, method: incomingMessage.method },
         null, // no response object to start
         // Write our response to the `http.serverResponse` object.
-        function(error, incomingMessage, response) {
+        function(error, request, response) {
           serverResponse.writeHead(response.status, response.headers);
           serverResponse.end(response.body);
         }
