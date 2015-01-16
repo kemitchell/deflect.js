@@ -12,7 +12,11 @@ var getValueAsync = (function() {
 
   return function(key, callback) {
     process.nextTick(function() {
-      callback(null, DATA[key]);
+      if (key === 'c') {
+        callback({ status: 500 });
+      } else {
+        callback(null, DATA[key]);
+      }
     });
   };
 })();
@@ -102,6 +106,12 @@ describe('HTTP Server Example', function() {
       .expect(200)
       .expect('Content-Type', 'application/json')
       .expect('{"message":"B!"}')
+      .end(done);
+  });
+
+  it('serves /c', function(done) {
+    this.app.get('/resource/c')
+      .expect(500)
       .end(done);
   });
 
