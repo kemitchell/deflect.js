@@ -15,7 +15,8 @@
       };
     })();
 
-    // Wrap a function to throw if called more than once.
+    // Wrap a function so that it throws an error if it is called more
+    // than once.
     var once = function(input) {
       var called = false;
       return function() {
@@ -28,7 +29,8 @@
       };
     };
 
-    // Catch any error and pass as first argument to the callback.
+    // Wrap a callback accepting function so that any error it throws
+    // is caught and passed as the error argument to its callback.
     var trapErrors = function(input) {
       return function() {
         try {
@@ -39,24 +41,29 @@
       };
     };
 
-    // Exported Function
-    // -----------------
+    // Deflect Function
+    // ------------------
 
-    // Convert a list of functions of the form
+    // Convert an argument-list stack of functions of the form ...
     //
     //     function(error, ..., next) {
     //       next(error, ...);
     //     }
     //
-    // into a "stack function" of similar form that executes the
-    // functions in the stack in order, passing each function's error
-    // and callback arguments (`...`) to the next, or, alternatively,
-    // "deflecting" execution to a provided function before popping the
-    // remaining functions in the stack.
+    // ... into a function of the form ...
+    //
+    //     function(error, ...) {
+    //       // No need to call a callback
+    //     }
+    //
+    // ... that executes the functions in stack order, passing each
+    // function's results to the next function in the stack.
     var deflect = function() {
       var functionStack = toArray(arguments);
       var nextFunction = functionStack[0];
       var remainingFunctions = functionStack.slice(1);
+
+      // ### Stack Function
 
       return function() {
         var invocationArguments = toArray(arguments);
@@ -64,60 +71,59 @@
         if (typeof finalCallback !== 'function') {
           throw new Error('No callback provided');
         }
-        var nextCallback;
 
-        // This is the last function on the stack, so its callback
-        // should call the final callback provided when the stack
-        // function was called.
-        if (remainingFunctions.length === 0) {
-          nextCallback = once(function() {
-            var callbackArguments = toArray(arguments);
+        // #### Callback
 
-            // If the callback is called with no arguments, pass the
-            // same list of arguments to the next function.
-            if(callbackArguments.length === 0) {
-              callbackArguments = invocationArguments;
-            }
+        // Construct the callback function that will be passed to the
+        // function at the top of the stack.
+        var nextCallback = once(function() {
+          var callbackArguments = toArray(arguments);
 
-            finalCallback.apply(root, callbackArguments);
-          });
+          // If the callback is called with no arguments, pass the
+          // same list of arguments to the next function.
+          if(callbackArguments.length === 0) {
+            callbackArguments = invocationArguments;
 
-        // There are still functions on the stack, so the callback
-        // for the next function should continue to invoke them.
-        } else {
-          nextCallback = once(function() {
-            var callbackArguments = toArray(arguments);
+          // If the first argument a function passes to its callback
+          // is a function, rather than an error, that function is
+          // unshifted onto the front of the stack, so it will be
+          // executed next. This deviation from traditional continuation
+          // passing style allows functions in the stack to modify the
+          // content of the stack dynamically.
+          } else if (typeof callbackArguments[0] === 'function') {
+            var insertedFunction = callbackArguments.shift();
+            remainingFunctions.unshift(insertedFunction);
+          }
 
-            // If the callback is called with no arguments, pass the
-            // same list of arguments to the next function.
-            if(callbackArguments.length === 0) {
-              callbackArguments = invocationArguments;
-
-            // If the first argument a function passes to its callback
-            // is a function, rather than an error, that function is
-            // unshifted onto the front of the stack, so it will be
-            // executed next.
-            } else if (typeof callbackArguments[0] === 'function') {
-              var deflectedFunction = callbackArguments.shift();
-              remainingFunctions.unshift(deflectedFunction);
-            }
-
-            // `deflect` the rest of the function stack, then invoke
-            // the new stack function with the arguments the callback
-            // received, plus the final callback in the last position.
+          // If there are still any functions on the stack, the
+          // callback for the next function should continue to invoke
+          // them. `deflect` the rest of the function stack, then
+          // invoke the resulting stack function with the arguments
+          // the callback received, plus the final callback in the
+          // last position.
+          if (remainingFunctions.length > 0) {
             deflect
               .apply(root, remainingFunctions)
               .apply(root, callbackArguments.concat(finalCallback));
-          });
-        }
 
-        // Invoke the function at the top of the stack, trapping errors
-        // and providing the created callback function.
+          // If there aren't any functions left on the stack, call the
+          // final callback passed when the stack function was called.
+          } else {
+            finalCallback
+              .apply(root, callbackArguments);
+          }
+        });
+
+        // ### Invocation
+
+        // Invoke the function at the top of the stack, trapping
+        // errors and providing the created callback function.
         trapErrors(nextFunction)
           .apply(root, invocationArguments.concat(nextCallback));
       };
     };
 
+    // Exports `deflect`.
     return deflect;
   };
 

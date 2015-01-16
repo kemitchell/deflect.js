@@ -56,6 +56,21 @@ describe('Deflect', function() {
       )(null, [], done);
     });
 
+    it('works just before the final callback', function(done) {
+      var concatA = function(err, list, next) {
+        next(err, list.concat('A'));
+      };
+
+      deflect(
+        function(error, list, next) {
+          next(concatA, error, list);
+        }
+      )(null, [], function(error, list) {
+        expect(list).to.eql([ 'A' ]);
+        done();
+      });
+    });
+
     it('resumes with the next function on the stack', function(done) {
       var concatB = function(err, list, next) {
         next(err, list.concat('B'));

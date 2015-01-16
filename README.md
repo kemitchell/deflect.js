@@ -8,3 +8,10 @@ deflect.js
 Dynamic stacks of error-first continuation passing functions
 
 For a usage example, see the [HTTP server in the test suite](./test/http-server.test.js).
+
+Comments to the source are [Docco](http://jashkenas.github.io/docco/)-compatible. To generate an annotated source listing for browsing:
+
+```bash
+npm --global install docco
+docco --output docs deflect.js
+``
