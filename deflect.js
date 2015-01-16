@@ -55,7 +55,7 @@
     // and callback arguments (`...`) to the next, or, alternatively,
     // "deflecting" execution to a provided function before popping the
     // remaining functions in the stack.
-    var deflect = function(/* function(err, next){}, ... */) {
+    var deflect = function() {
       var functionStack = toArray(arguments);
       var nextFunction = functionStack[0];
       var remainingFunctions = functionStack.slice(1);
