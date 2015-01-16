@@ -1,4 +1,5 @@
 var once = require('./call-once');
+var trapErrors = require('./trap-errors');
 
 var root = this;
 
@@ -25,6 +26,7 @@ var deflect = module.exports = function() {
       });
     }
 
-    nextFunction.apply(root, argumentsArray.concat(callback));
+    trapErrors(nextFunction)
+      .apply(root, argumentsArray.concat(callback));
   };
 };
