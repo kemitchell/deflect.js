@@ -1,0 +1,31 @@
+{
+  "name": "deflect",
+  "description": "dynamic stacks of error-first continuation passing functions",
+  "version": "0.0.0",
+  "main": "deflect.js",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Kyle E. Mitchell",
+    "email": "kyle@kemitchell.com",
+    "url": "http://kemitchell.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kemitchell/deflect.js.git"
+  },
+  "homepage": "https://github.com/kemitchell/deflect.js",
+  "keywords": [
+    "functions",
+    "callbacks",
+    "continuation passing style",
+    "asynchronous"
+  ],
+  "ignore": [
+    "**/.*",
+    "coverage/",
+    "docs/",
+    "node_modules/",
+    "package.json",
+    "test/"
+  ]
+}
