@@ -13,6 +13,21 @@ describe('Deflect', function() {
     expect(deflect(function() {})).to.throw(Error);
   });
 
+  it('passes final values to callback', function(done) {
+    var string = 'some text';
+    deflect(
+      function(error, next) {
+        next(null, string);
+      },
+      function(error, value, next) {
+        next(error, value);
+      }
+    )(null, function(error, data) {
+      expect(data).to.eql(string);
+      done();
+    });
+  });
+
   it('throws when a callback is called more than once', function(done) {
     expect(function() {
       deflect(function(next) {
