@@ -1,7 +1,15 @@
+// deflect.js
+// ----------
+// Dynamic stacks of error-first continuation passing functions
+
 (function(root) {
   var MODULE_NAME = 'deflect';
 
   var factory = function() {
+    // Utility Functions
+    // -----------------
+
+    // Convert `arguments` to an array.
     var toArray = (function() {
       var slice = Array.prototype.slice;
       return function(args) {
@@ -33,40 +41,75 @@
       };
     };
 
-    var deflect = function() {
+    // Exported Function
+    // -----------------
+
+    // Convert a list of functions of the form
+    //
+    //     function(error, ..., next) {
+    //       next(error, ...);
+    //     }
+    //
+    // into a "stack function" of similar form that executes the
+    // functions in the stack in order, passing each function's error
+    // and callback arguments (`...`) to the next, or, alternatively,
+    // "deflecting" execution to a provided function before popping the
+    // remaining functions in the stack.
+    var deflect = function(/* function(err, next){}, ... */) {
       var functionStack = toArray(arguments);
       var nextFunction = functionStack[0];
       var remainingFunctions = functionStack.slice(1);
 
       return function() {
         var argumentsArray = toArray(arguments);
-        var done = argumentsArray.pop();
-        if (typeof done !== 'function') {
+        var finalCallback = argumentsArray.pop();
+        if (typeof finalCallback !== 'function') {
           throw new Error('No callback provided');
         }
-        var callback;
+        var nextCallback;
 
+        // This is the last function on the stack, so its callback
+        // should call the final callback provided when the stack
+        // function was called.
         if (remainingFunctions.length === 0) {
-          callback = once(done);
+          nextCallback = once(finalCallback);
+
+        // There are still functions on the stack, so the callback
+        // for the next function should continue to invoke them.
         } else {
-          callback = once(function() {
-            var passedBack = toArray(arguments);
-            if (typeof passedBack[0] === 'function') {
-              remainingFunctions.unshift(passedBack.shift());
+          nextCallback = once(function() {
+            var callbackArguments = toArray(arguments);
+
+            // If the first argument a function passes to its callback
+            // is a function, rather than an error, that function is
+            // unshifted onto the front of the stack, so it will be
+            // executed next.
+            if (typeof callbackArguments[0] === 'function') {
+              var deflectedFunction = callbackArguments.shift();
+              remainingFunctions.unshift(deflectedFunction);
             }
+
+            // `deflect` the rest of the function stack, then invoke
+            // the new stack function with the arguments the callback
+            // received, plus the final callback in the last position.
             deflect
               .apply(root, remainingFunctions)
-              .apply(root, passedBack.concat(done));
+              .apply(root, callbackArguments.concat(finalCallback));
           });
         }
 
+        // Invoke the function at the top of the stack, trapping errors
+        // and providing the created callback function.
         trapErrors(nextFunction)
-          .apply(root, argumentsArray.concat(callback));
+          .apply(root, argumentsArray.concat(nextCallback));
       };
     };
 
     return deflect;
   };
+
+  // Universal Module Definition
+  // ---------------------------
 
   /* globals define, module */
   /* istanbul ignore next */
