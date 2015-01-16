@@ -15,6 +15,7 @@ describe('HTTP Server', function() {
         }
       };
     };
+
     this.app = supertest(function(incomingMessage, serverResponse) {
       deflect(
         serveRoute('/a', 'A!'),
@@ -43,7 +44,7 @@ describe('HTTP Server', function() {
           serverResponse.end(response.body);
           next();
         }
-      )(null, incomingMessage, null);
+      )(null, incomingMessage, null, function() {});
     });
   });
 

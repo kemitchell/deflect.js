@@ -8,4 +8,8 @@ describe('Deflect', function() {
     expect(deflect).to.be.a('function');
     expect(Object.keys(deflect)).to.be.empty();
   });
+
+  it('creates functions that take callbacks', function() {
+    expect(deflect(function() {})).to.throw(Error);
+  });
 });

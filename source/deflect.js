@@ -15,14 +15,18 @@ var deflect = module.exports = function() {
 
   return function() {
     var argumentsArray = toArray(arguments);
+    var done = argumentsArray.pop();
+    if (typeof done !== 'function') {
+      throw new Error('No callback provided');
+    }
     var callback;
 
     if (remainingFunctions.length === 0) {
-      callback = once(function() {});
+      callback = once(done);
     } else {
       callback = once(function() {
-        var next = deflect.apply(root, remainingFunctions);
-        next.apply(root, arguments);
+        deflect.apply(root, remainingFunctions)
+          .apply(root, toArray(arguments).concat(done));
       });
     }
 

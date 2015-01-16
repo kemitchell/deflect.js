@@ -13,9 +13,8 @@ describe('Error handling', function() {
       function(error, next) {
         expect(error.message).to.equal(message);
         next();
-        done();
       }
-    )();
+    )(done);
   });
 
   it('passes argument errors', function(done) {
@@ -27,8 +26,7 @@ describe('Error handling', function() {
       function(error, next) {
         expect(error.message).to.equal(message);
         next();
-        done();
       }
-    )();
+    )(done);
   });
 });
