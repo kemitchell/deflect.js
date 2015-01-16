@@ -7,7 +7,6 @@
     "chai": "^1.10.0",
     "mocha": "^2.1.0",
     "semver": "^4.2.0",
-    "sinon": "^1.12.2",
     "supertest": "^0.15.0"
   },
   "scripts": {
