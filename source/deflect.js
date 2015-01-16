@@ -1,36 +1,30 @@
-var applyResponse = require('./apply-response');
-var invoke = require('./invoke');
+var once = require('./call-once');
 
-// Create a a request handler for `http.Server` from stacks of
-// `function(error, environment, request, response, next) {}`.
-module.exports = function(functions) {
-  if (!Array.isArray(functions)) {
-    functions = [ functions ];
-  }
+var root = this;
 
-  return function(incomingMessage, serverResponse) {
-    functions.push(
-      function(
-        error, environment, incomingMessage, responseObject, next
-      ) {
-        if (responseObject) {
-          // Send the response.
-          applyResponse(responseObject, serverResponse);
-        } else {
-          // Respond 404.
-          applyResponse({ status: 404 }, serverResponse);
-        }
-        next();
-      }
-    );
+var slice = Array.prototype.slice;
+var toArray = function(args) {
+  return slice.call(args);
+};
 
-    invoke(
-      null,
-      null,
-      null,
-      functions,
-      incomingMessage,
-      serverResponse
-    );
+var deflect = module.exports = function() {
+  var functionStack = toArray(arguments);
+  var nextFunction = functionStack[0];
+  var remainingFunctions = functionStack.slice(1);
+
+  return function() {
+    var callback;
+    var argumentsArray = toArray(arguments);
+
+    if (remainingFunctions.length === 0) {
+      callback = once(function() {});
+    } else {
+      callback = once(function() {
+        var next = deflect.apply(root, remainingFunctions);
+        next.apply(root, arguments);
+      });
+    }
+
+    nextFunction.apply(root, argumentsArray.concat(callback));
   };
 };
