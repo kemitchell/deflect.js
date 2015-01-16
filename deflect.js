@@ -3,8 +3,6 @@
 // Dynamic stacks of error-first continuation passing functions
 
 (function(root) {
-  var MODULE_NAME = 'deflect';
-
   var factory = function() {
     // Utility Functions
     // -----------------
@@ -110,6 +108,8 @@
 
   // Universal Module Definition
   // ---------------------------
+
+  var MODULE_NAME = 'deflect';
 
   /* globals define, module */
   /* istanbul ignore next */
