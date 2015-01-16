@@ -20,6 +20,10 @@
     "continuation passing style",
     "asynchronous"
   ],
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.4.x"
+  },
   "devDependencies": {
     "chai": "^1.10.0",
     "istanbul": "^0.3.5",
