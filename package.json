@@ -2,7 +2,7 @@
   "name": "deflect",
   "description": "functional composition of HTTP servers",
   "version": "0.0.0",
-  "main": "source/deflect.js",
+  "main": "deflect.js",
   "devDependencies": {
     "chai": "^1.10.0",
     "mocha": "^2.1.0",
@@ -11,10 +11,10 @@
     "supertest": "^0.15.0"
   },
   "scripts": {
-    "coverage": "istanbul cover _mocha && istanbul check-coverage coverage/coverage.json",
-    "lint": "jscs source/ test/ && jshint .",
+    "coverage": "istanbul cover _mocha --recursive && istanbul check-coverage coverage/coverage.json",
+    "lint": "jscs deflect.js test/ && jshint .",
     "pre-commit": "npm run lint && npm run coverage",
-    "test": "mocha",
+    "test": "mocha --recursive",
     "travis-ci": "npm run pre-commit"
   }
 }
