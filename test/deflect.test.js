@@ -16,6 +16,7 @@ describe('Deflect', function() {
 
   it('passes final values to callback', function(done) {
     var string = 'some text';
+
     deflect(
       function(error, next) {
         next(null, string);
@@ -45,6 +46,7 @@ describe('Deflect', function() {
       var concatB = function(err, list, next) {
         next(err, list.concat('B'));
       };
+
       deflect(
         function(error, list, next) {
           next(concatB, error, list.concat('A'));
@@ -69,6 +71,7 @@ describe('Deflect', function() {
           next();
         }
       );
+
       stack(null, [], function() {
         stack(null, [], done);
       });
@@ -112,6 +115,7 @@ describe('Deflect', function() {
   describe('next()', function() {
     it('recycles arguments for the next function', function(done) {
       var value = 'arbitrary';
+
       deflect(
         function(error, x, next) {
           next();
@@ -127,6 +131,7 @@ describe('Deflect', function() {
   describe('Error Handling', function() {
     it('traps thrown errors', function(done) {
       var message = 'Thrown, not passed';
+
       deflect(
         function() {
           throw new Error(message);
@@ -139,10 +144,16 @@ describe('Deflect', function() {
     });
 
     it('traps other errors', function(done) {
+      var passThrough = function(error, next) {
+        next();
+      };
+
       deflect(
+        passThrough,
         function(error, next) {
           next(null, notDefined); /* jshint ignore: line */
-        }
+        },
+        passThrough
       )(null, function(error) {
         expect(error).to.be.an.instanceof(ReferenceError);
         done();
@@ -151,6 +162,7 @@ describe('Deflect', function() {
 
     it('passes argument errors', function(done) {
       var message = 'Passed, not thrown';
+
       deflect(
         function(next) {
           next({ message: message });
