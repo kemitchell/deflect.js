@@ -66,11 +66,13 @@
         // function at the top of the stack.
         var nextCallback = once(function() {
           var callbackArguments = toArray(arguments);
+          var functionStack;
 
           // If the callback is called with no arguments, pass the
           // same list of arguments to the next function.
           if(callbackArguments.length === 0) {
             callbackArguments = invocationArguments;
+          }
 
           // If the first argument a function passes to its callback
           // is a function, rather than an error, that function is
@@ -78,9 +80,12 @@
           // executed next. This deviation from traditional continuation
           // passing style allows functions in the stack to modify the
           // content of the stack dynamically.
-          } else if (typeof callbackArguments[0] === 'function') {
+          if (typeof callbackArguments[0] === 'function') {
             var insertedFunction = callbackArguments.shift();
-            remainingFunctions.unshift(insertedFunction);
+            functionStack = [ insertedFunction ]
+              .concat(remainingFunctions);
+          } else {
+            functionStack = remainingFunctions;
           }
 
           // If there are still any functions on the stack, the
@@ -89,9 +94,9 @@
           // invoke the resulting stack function with the arguments
           // the callback received, plus the final callback in the
           // last position.
-          if (remainingFunctions.length > 0) {
+          if (functionStack.length > 0) {
             deflect
-              .apply(root, remainingFunctions)
+              .apply(root, functionStack)
               .apply(root, callbackArguments.concat(finalCallback));
 
           // If there aren't any functions left on the stack, call the

@@ -45,10 +45,8 @@ describe('Deflect', function() {
       var concatB = function(err, list, next) {
         next(err, list.concat('B'));
       };
-
       deflect(
         function(error, list, next) {
-          // Deflect
           next(concatB, error, list.concat('A'));
         },
         function(error, list, next) {
@@ -56,6 +54,24 @@ describe('Deflect', function() {
           next();
         }
       )(null, [], done);
+    });
+
+    it('does not permanently mutate the stack function', function(done) {
+      var concatB = function(err, list, next) {
+        next(err, list.concat('B'));
+      };
+      var stack = deflect(
+        function(error, list, next) {
+          next(concatB, error, list.concat('A'));
+        },
+        function(error, list, next) {
+          expect(list).to.eql([ 'A', 'B' ]);
+          next();
+        }
+      );
+      stack(null, [], function() {
+        stack(null, [], done);
+      });
     });
 
     it('works just before the final callback', function(done) {
