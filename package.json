@@ -32,10 +32,10 @@
     "supertest": "^0.15.0"
   },
   "scripts": {
-    "coverage": "istanbul cover _mocha --recursive && istanbul check-coverage coverage/coverage.json",
+    "coverage": "istanbul cover _mocha && istanbul check-coverage coverage/coverage.json",
     "lint": "jshint .",
     "pre-commit": "npm run lint && npm run coverage",
-    "test": "mocha --recursive",
+    "test": "mocha",
     "travis-ci": "npm run pre-commit"
   }
 }
