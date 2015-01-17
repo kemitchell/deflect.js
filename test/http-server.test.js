@@ -21,6 +21,16 @@ var getValueAsync = (function() {
   };
 })();
 
+var serveData = function(error, key, request, response, next) {
+  getValueAsync(key, function(dbError, value) {
+    if (dbError) {
+      next(dbError, request, null);
+    } else {
+      next(null, request, value);
+    }
+  });
+};
+
 describe('HTTP Server Example', function() {
   before(function() {
     var handlerStack = deflect(
@@ -39,13 +49,7 @@ describe('HTTP Server Example', function() {
             next();
           } else {
             var key = url.substring(url.lastIndexOf('/') + 1);
-            getValueAsync(key, function(dbError, value) {
-              if (dbError) {
-                next(dbError, request, null);
-              } else {
-                next(null, request, value);
-              }
-            });
+            next(serveData, error, key, request, response);
           }
         };
       })(),
