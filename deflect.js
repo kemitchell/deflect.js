@@ -29,18 +29,6 @@
       };
     };
 
-    // Wrap a callback accepting function so that any error it throws
-    // is caught and passed as the error argument to its callback.
-    var trapErrors = function(input) {
-      return function() {
-        try {
-          input.apply(root, arguments);
-        } catch (error) {
-          arguments[arguments.length - 1].call(root, error);
-        }
-      };
-    };
-
     // Deflect Function
     // ------------------
 
@@ -118,8 +106,13 @@
 
         // Invoke the function at the top of the stack, trapping
         // errors and providing the created callback function.
-        trapErrors(nextFunction)
-          .apply(root, invocationArguments.concat(nextCallback));
+        try {
+          nextFunction
+            .apply(root, invocationArguments.concat(nextCallback));
+        } catch(e) {
+          invocationArguments[0] = e;
+          nextCallback.apply(root, invocationArguments);
+        }
       };
     };
 
