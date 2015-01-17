@@ -33,7 +33,7 @@ var serveData = function(error, key, request, response, next) {
 
 describe('HTTP Server Example', function() {
   before(function() {
-    var handlerStack = deflect(
+    var handlerStack = deflect([
       // If the request is for `/resource/...`, fetch the resource from
       // our fake data store and serve it.
       (function() {
@@ -81,7 +81,7 @@ describe('HTTP Server Example', function() {
           next();
         }
       }
-    );
+    ]);
 
     this.app = supertest(function(incomingMessage, serverResponse) {
       handlerStack(

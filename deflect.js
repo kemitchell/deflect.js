@@ -32,11 +32,14 @@
     // Deflect Function
     // ------------------
 
-    // Convert an argument-list stack of functions of the form ...
+    // Convert an array of functions of the form ...
     //
-    //     function(error, ..., next) {
-    //       next(error, ...);
-    //     }
+    //     [
+    //       function(error, ..., next) {
+    //         next(error, ...);
+    //       },
+    //       ...
+    //     ]
     //
     // ... into a function of the form ...
     //
@@ -46,8 +49,7 @@
     //
     // ... that executes the functions in stack order, passing each
     // function's results to the next function in the stack.
-    var deflect = function() {
-      var functionStack = toArray(arguments);
+    var deflect = function(functionStack) {
       var currentFunction = functionStack[0];
       var remainingFunctions = functionStack.slice(1);
 
@@ -99,7 +101,7 @@
           // received, plus the final callback in the last position.
           if (nextFunctions.length > 0) {
             deflect
-              .apply(root, nextFunctions)
+              .call(root, nextFunctions)
               .apply(root, callbackArguments.concat(finalCallback));
 
           // If there aren't any functions left on the stack, call the
