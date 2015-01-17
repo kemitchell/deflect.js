@@ -10,7 +10,8 @@ describe('Deflect', function() {
   });
 
   it('creates functions that take callbacks', function() {
-    expect(deflect(function() {})).to.throw(Error);
+    expect(deflect(function() {}))
+      .to.throw(Error, 'No callback provided');
   });
 
   it('passes final values to callback', function(done) {
@@ -35,7 +36,8 @@ describe('Deflect', function() {
         next();
         next();
       })(done);
-    }).to.throw(Error);
+    })
+      .to.throw(Error, 'Callback was already called');
   });
 
   describe('next(function(){}, ...)', function() {
