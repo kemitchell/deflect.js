@@ -1,13 +1,13 @@
-// deflect.js
-// ----------
-// Dynamic stacks of error-first continuation passing functions
+// # deflect.js 0.0.4
+// https://github.com/kemitchell/deflect.js
 
 (function(root) {
+  // Factory to create the exported function
   var factory = function() {
     // Utility Functions
     // -----------------
 
-    // Convert `arguments` to an array.
+    // Convert `arguments` to an array in a readable way.
     var toArray = (function() {
       var slice = Array.prototype.slice;
       return function(args) {
@@ -29,8 +29,8 @@
       };
     };
 
-    // Deflect Function
-    // ------------------
+    // Exported Function
+    // -----------------
 
     // Convert an array of functions of the form ...
     //
@@ -55,6 +55,7 @@
 
       // ### Stack Function
 
+      // Return a function invokes the stack of functions.
       return function() {
         var invocationArguments = toArray(arguments);
         var finalCallback = invocationArguments.pop();
@@ -94,12 +95,12 @@
             nextFunctions = remainingFunctions;
           }
 
-          // If there are still any functions on the stack, the callback
-          // for the next function should continue to invoke them.
-          // `deflect` the tail of the function stack, then invoke the
-          // resulting stack function with the arguments the callback
-          // received, plus the final callback in the last position.
+          // If there are still functions on the stack, the callback for
+          // the next function should continue invoking them.
           if (nextFunctions.length > 0) {
+            // `deflect` the tail of the function stack, then call the
+            // resulting stack function, passing the arguments the
+            // callback received, plus the final callback.
             deflect
               .call(root, nextFunctions)
               .apply(root, callbackArguments.concat(finalCallback));
@@ -115,7 +116,7 @@
         // ### Invocation
 
         // Invoke the function at the top of the stack, catching errors
-        // and providing the created callback function.
+        // and passing the created callback function.
         try {
           currentFunction.apply(
             root, invocationArguments.concat(nextCallback)
@@ -127,7 +128,7 @@
       };
     };
 
-    // Exports `deflect`.
+    // Export `deflect`.
     return deflect;
   };
 
