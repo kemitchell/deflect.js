@@ -68,6 +68,8 @@
         // function at the top of the stack.
         var nextCallback = once(function() {
           var callbackArguments = toArray(arguments);
+          var firstArgument = callbackArguments[0];
+          var firstIsAFunction = false;
           var nextFunctions;
 
           // If the callback is called with no arguments, pass the
@@ -76,18 +78,16 @@
             callbackArguments = invocationArguments;
           }
 
-          // If the callback is called with a function as its first
-          // argument, rather than an error, a new stack is created
-          // with that function at the font, so it will be called next.
-          if (typeof callbackArguments[0] === 'function') {
-            var insertedFunction = callbackArguments.shift();
-            nextFunctions = [ insertedFunction ]
-              .concat(remainingFunctions);
-          // If the callback is called with an array of functions as
-          // its first argument, a new stack is created with the new
-          // functions at the font, so they will be called next.
-          } else if (Array.isArray(callbackArguments[0])) {
-            var insertedFunctions = callbackArguments.shift();
+          // If the callback is called with a function or an array of
+          // functions as its first argument, rather than an error, a
+          // new stack is created with the passed function or functions
+          // at the font, to be called next.
+          if (
+            (firstIsAFunction = typeof firstArgument === 'function') ||
+            Array.isArray(firstArgument)
+          ) {
+            var insertedFunctions = firstIsAFunction ?
+              [ callbackArguments.shift() ] : callbackArguments.shift();
             nextFunctions = insertedFunctions
               .concat(remainingFunctions);
           } else {
@@ -120,8 +120,8 @@
           currentFunction.apply(
             root, invocationArguments.concat(nextCallback)
           );
-        } catch(e) {
-          invocationArguments[0] = e;
+        } catch(error) {
+          invocationArguments[0] = error;
           nextCallback.apply(root, invocationArguments);
         }
       };
