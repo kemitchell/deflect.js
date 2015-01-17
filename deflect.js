@@ -48,7 +48,7 @@
     // function's results to the next function in the stack.
     var deflect = function() {
       var functionStack = toArray(arguments);
-      var nextFunction = functionStack[0];
+      var currentFunction = functionStack[0];
       var remainingFunctions = functionStack.slice(1);
 
       // ### Stack Function
@@ -66,7 +66,7 @@
         // function at the top of the stack.
         var nextCallback = once(function() {
           var callbackArguments = toArray(arguments);
-          var functionStack;
+          var nextFunctions;
 
           // If the callback is called with no arguments, pass the
           // same list of arguments to the next function.
@@ -74,29 +74,28 @@
             callbackArguments = invocationArguments;
           }
 
-          // If the first argument a function passes to its callback
-          // is a function, rather than an error, that function is
-          // unshifted onto the front of the stack, so it will be
-          // executed next. This deviation from traditional continuation
-          // passing style allows functions in the stack to modify the
-          // content of the stack dynamically.
+          // If the callback is called with a function as its first
+          // argument, rather than an error, a new stack is created
+          // with that function at the font, so it will be called next.
+          // This deviation from traditional continuation passing style
+          // allows functions in the stack to modify the tail of the
+          // stack dynamically.
           if (typeof callbackArguments[0] === 'function') {
             var insertedFunction = callbackArguments.shift();
-            functionStack = [ insertedFunction ]
+            nextFunctions = [ insertedFunction ]
               .concat(remainingFunctions);
           } else {
-            functionStack = remainingFunctions;
+            nextFunctions = remainingFunctions;
           }
 
-          // If there are still any functions on the stack, the
-          // callback for the next function should continue to invoke
-          // them. `deflect` the rest of the function stack, then
-          // invoke the resulting stack function with the arguments
-          // the callback received, plus the final callback in the
-          // last position.
-          if (functionStack.length > 0) {
+          // If there are still any functions on the stack, the callback
+          // for the next function should continue to invoke them.
+          // `deflect` the tail of the function stack, then invoke the
+          // resulting stack function with the arguments the callback
+          // received, plus the final callback in the last position.
+          if (nextFunctions.length > 0) {
             deflect
-              .apply(root, functionStack)
+              .apply(root, nextFunctions)
               .apply(root, callbackArguments.concat(finalCallback));
 
           // If there aren't any functions left on the stack, call the
@@ -109,10 +108,10 @@
 
         // ### Invocation
 
-        // Invoke the function at the top of the stack, trapping
-        // errors and providing the created callback function.
+        // Invoke the function at the top of the stack, catching errors
+        // and providing the created callback function.
         try {
-          nextFunction.apply(
+          currentFunction.apply(
             root, invocationArguments.concat(nextCallback)
           );
         } catch(e) {
