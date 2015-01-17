@@ -37,7 +37,7 @@ describe('Deflect', function() {
         next();
       })(done);
     })
-      .to.throw(Error, 'Callback was already called');
+      .to.throw(Error, 'Callback called multiple times');
   });
 
   describe('next(function(){}, ...)', function() {
@@ -98,7 +98,6 @@ describe('Deflect', function() {
         function(error, list, next) {
           next(concatB, error, list.concat('A'));
         },
-        // Invoked after the deflection
         function(error, list, next) {
           next(error, list.concat('C'));
         },
@@ -137,6 +136,17 @@ describe('Deflect', function() {
           next(null);
         }
       )(done);
+    });
+
+    it('traps other errors', function(done) {
+      deflect(
+        function(error, next) {
+          next(null, notDefined); /* jshint ignore: line */
+        }
+      )(null, function(error) {
+        expect(error).to.be.an.instanceof(ReferenceError);
+        done();
+      });
     });
 
     it('passes argument errors', function(done) {

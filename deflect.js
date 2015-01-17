@@ -21,7 +21,7 @@
       var called = false;
       return function() {
         if (called) {
-          throw new Error('Callback was already called.');
+          throw new Error('Callback called multiple times');
         } else {
           called = true;
           input.apply(root, arguments);
@@ -112,8 +112,9 @@
         // Invoke the function at the top of the stack, trapping
         // errors and providing the created callback function.
         try {
-          nextFunction
-            .apply(root, invocationArguments.concat(nextCallback));
+          nextFunction.apply(
+            root, invocationArguments.concat(nextCallback)
+          );
         } catch(e) {
           invocationArguments[0] = e;
           nextCallback.apply(root, invocationArguments);
