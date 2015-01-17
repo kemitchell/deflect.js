@@ -77,12 +77,16 @@
           // If the callback is called with a function as its first
           // argument, rather than an error, a new stack is created
           // with that function at the font, so it will be called next.
-          // This deviation from traditional continuation passing style
-          // allows functions in the stack to modify the tail of the
-          // stack dynamically.
           if (typeof callbackArguments[0] === 'function') {
             var insertedFunction = callbackArguments.shift();
             nextFunctions = [ insertedFunction ]
+              .concat(remainingFunctions);
+          // If the callback is called with an array of functions as
+          // its first argument, a new stack is created with the new
+          // functions at the font, so they will be called next.
+          } else if (Array.isArray(callbackArguments[0])) {
+            var insertedFunctions = callbackArguments.shift();
+            nextFunctions = insertedFunctions
               .concat(remainingFunctions);
           } else {
             nextFunctions = remainingFunctions;

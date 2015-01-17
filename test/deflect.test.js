@@ -3,6 +3,12 @@ var expect = require('chai').expect;
 
 var deflect = require('..');
 
+var concat = function(value) {
+  return function(err, list, next) {
+    next(err, list.concat(value));
+  };
+};
+
 describe('Deflect', function() {
   it('exports only a function', function() {
     expect(deflect).to.be.a('function');
@@ -43,13 +49,9 @@ describe('Deflect', function() {
 
   describe('next(function(){}, ...)', function() {
     it('unshifts a function onto the stack', function(done) {
-      var concatB = function(err, list, next) {
-        next(err, list.concat('B'));
-      };
-
       deflect(
         function(error, list, next) {
-          next(concatB, error, list.concat('A'));
+          next(concat('B'), error, list.concat('A'));
         },
         function(error, list, next) {
           expect(list).to.eql([ 'A', 'B' ]);
@@ -59,12 +61,9 @@ describe('Deflect', function() {
     });
 
     it('does not permanently mutate the stack function', function(done) {
-      var concatB = function(err, list, next) {
-        next(err, list.concat('B'));
-      };
       var stack = deflect(
         function(error, list, next) {
-          next(concatB, error, list.concat('A'));
+          next(concat('B'), error, list.concat('A'));
         },
         function(error, list, next) {
           expect(list).to.eql([ 'A', 'B' ]);
@@ -78,13 +77,9 @@ describe('Deflect', function() {
     });
 
     it('works just before the final callback', function(done) {
-      var concatA = function(err, list, next) {
-        next(err, list.concat('A'));
-      };
-
       deflect(
         function(error, list, next) {
-          next(concatA, error, list);
+          next(concat('A'), error, list);
         }
       )(null, [], function(error, list) {
         expect(list).to.eql([ 'A' ]);
@@ -93,19 +88,71 @@ describe('Deflect', function() {
     });
 
     it('resumes with the next function on the stack', function(done) {
-      var concatB = function(err, list, next) {
-        next(err, list.concat('B'));
-      };
-
       deflect(
         function(error, list, next) {
-          next(concatB, error, list.concat('A'));
+          next(concat('B'), error, list.concat('A'));
         },
         function(error, list, next) {
           next(error, list.concat('C'));
         },
         function(error, list, next) {
           expect(list).to.eql([ 'A', 'B', 'C' ]);
+          next();
+        }
+      )(null, [], done);
+    });
+  });
+
+  describe('next([ function(){} ], ...)', function() {
+    it('unshifts multiple functions onto the stack', function(done) {
+      deflect(
+        function(error, list, next) {
+          next([ concat('B'), concat('C') ], error, list.concat('A'));
+        },
+        function(error, list, next) {
+          expect(list).to.eql([ 'A', 'B', 'C' ]);
+          next();
+        }
+      )(null, [], done);
+    });
+
+    it('does not permanently mutate the stack function', function(done) {
+      var stack = deflect(
+        function(error, list, next) {
+          next([ concat('B'), concat('C') ], error, list.concat('A'));
+        },
+        function(error, list, next) {
+          expect(list).to.eql([ 'A', 'B', 'C' ]);
+          next();
+        }
+      );
+
+      stack(null, [], function() {
+        stack(null, [], done);
+      });
+    });
+
+    it('works just before the final callback', function(done) {
+      deflect(
+        function(error, list, next) {
+          next([ concat('A'), concat('B') ], error, list);
+        }
+      )(null, [], function(error, list) {
+        expect(list).to.eql([ 'A', 'B' ]);
+        done();
+      });
+    });
+
+    it('resumes with the next function on the stack', function(done) {
+      deflect(
+        function(error, list, next) {
+          next([ concat('B'), concat('C') ], error, list.concat('A'));
+        },
+        function(error, list, next) {
+          next(error, list.concat('D'));
+        },
+        function(error, list, next) {
+          expect(list).to.eql([ 'A', 'B', 'C', 'D' ]);
           next();
         }
       )(null, [], done);
