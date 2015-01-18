@@ -68,29 +68,27 @@
         var nextCallback = once(function() {
           var callbackArguments = toArray(arguments);
           var firstArgument = callbackArguments[0];
-          var firstIsAFunction = false;
+          var firstIsAFunction = typeof firstArgument === 'function';
           var nextFunctions;
-
-          // If the callback is called with no arguments, pass the
-          // same list of arguments to the next function.
-          if(callbackArguments.length === 0) {
-            callbackArguments = invocationArguments;
-          }
 
           // If the callback is called with a function or an array of
           // functions as its first argument, rather than an error, a
           // new stack is created with the passed function or functions
           // at the font, to be called next.
-          if (
-            (firstIsAFunction = typeof firstArgument === 'function') ||
-            Array.isArray(firstArgument)
-          ) {
+          if (firstIsAFunction || Array.isArray(firstArgument)) {
             var insertedFunctions = firstIsAFunction ?
-              [ callbackArguments.shift() ] : callbackArguments.shift();
+              [ callbackArguments.shift() ] :
+              callbackArguments.shift();
             nextFunctions = insertedFunctions
               .concat(remainingFunctions);
           } else {
             nextFunctions = remainingFunctions;
+          }
+
+          // If the callback is called with no additional arguments,
+          // pass the same list of arguments to the next function.
+          if(callbackArguments.length === 0) {
+            callbackArguments = invocationArguments;
           }
 
           // If there are still functions on the stack, the callback for
