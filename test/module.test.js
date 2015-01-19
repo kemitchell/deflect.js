@@ -33,7 +33,7 @@ describe('Module', function() {
   var firstSourceLines = fs.readFileSync(npm.main)
     .toString()
     .split('\n')
-    .slice(0, 2);
+    .slice(0, 3);
 
   it('version appears in the source file', function() {
     var header = npm.name + '.js ' + npm.version;
@@ -41,6 +41,6 @@ describe('Module', function() {
   });
 
   it('homepage appears in the source file', function() {
-    expect(firstSourceLines[1]).to.contain(npm.homepage);
+    expect(firstSourceLines[2]).to.contain(npm.homepage);
   });
 });

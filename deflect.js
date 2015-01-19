@@ -1,10 +1,12 @@
-// # deflect.js 0.0.4
+// deflect.js 0.0.4
+// ================
 // https://github.com/kemitchell/deflect.js
 
 (function(root) {
   // Factory to create the exported function
   var factory = function() {
-    // ## Utility Functions
+    // Utility Functions
+    // -----------------
 
     // Convert `arguments` to an array in a readable way.
     var toArray = (function() {
@@ -28,7 +30,8 @@
       };
     };
 
-    // ## Exported Function
+    // Exported Function
+    // -----------------
 
     // Convert an array of functions of the form ...
     //
@@ -128,7 +131,8 @@
     return deflect;
   };
 
-  // ## Universal Module Definition
+  // Universal Module Definition
+  // ---------------------------
 
   var MODULE_NAME = 'deflect';
 
