@@ -62,6 +62,9 @@ describe('Deflect', function() {
 
     it('recycles previous arguments', function(done) {
       deflect([
+        function(error, next) {
+          next(error, []);
+        },
         function(error, list, next) {
           next([ concat('A'), concat('B') ]);
         },
@@ -69,7 +72,7 @@ describe('Deflect', function() {
           expect(list).to.eql([ 'A', 'B' ]);
           next();
         }
-      ])(null, [], done);
+      ])(null, done);
     });
 
     it('does not permanently mutate the stack function', function(done) {
@@ -131,6 +134,9 @@ describe('Deflect', function() {
 
     it('recycles previous arguments', function(done) {
       deflect([
+        function(error, next) {
+          next(error, []);
+        },
         function(error, list, next) {
           next(concat('A'));
         },
@@ -138,7 +144,7 @@ describe('Deflect', function() {
           expect(list).to.eql([ 'A' ]);
           next();
         }
-      ])(null, [], done);
+      ])(null, done);
     });
 
     it('does not permanently mutate the stack function', function(done) {
