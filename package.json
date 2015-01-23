@@ -14,6 +14,7 @@
     "url": "https://github.com/kemitchell/deflect.js.git"
   },
   "homepage": "https://github.com/kemitchell/deflect.js",
+  "bugs": "https://github.com/kemitchell/deflect.js/issues",
   "keywords": [
     "functions",
     "callbacks",
