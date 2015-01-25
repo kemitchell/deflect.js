@@ -16,7 +16,7 @@ describe('Deflect', function() {
   });
 
   it('creates functions that take callbacks', function() {
-    expect(deflect([ function() {} ]))
+    expect(deflect([function() {}]))
       .to.throw(Error, 'No callback provided');
   });
 
@@ -39,22 +39,22 @@ describe('Deflect', function() {
 
   it('throws when a callback is called more than once', function(done) {
     expect(function() {
-      deflect([ function(next) {
+      deflect([function(next) {
         next();
         next();
-      } ])(done);
+      }])(done);
     })
       .to.throw(Error, 'Callback called multiple times');
   });
 
-  describe('next([ function(){} ])', function() {
+  describe('next([function(){}])', function() {
     it('unshifts a function onto the stack', function(done) {
       deflect([
         function(error, list, next) {
-          next([ concat('A'), concat('B') ], error, list);
+          next([concat('A'), concat('B')], error, list);
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A', 'B' ]);
+          expect(list).to.eql(['A', 'B']);
           next();
         }
       ])(null, [], done);
@@ -66,10 +66,10 @@ describe('Deflect', function() {
           next(error, []);
         },
         function(error, list, next) {
-          next([ concat('A'), concat('B') ]);
+          next([concat('A'), concat('B')]);
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A', 'B' ]);
+          expect(list).to.eql(['A', 'B']);
           next();
         }
       ])(null, done);
@@ -78,10 +78,10 @@ describe('Deflect', function() {
     it('does not permanently mutate the stack function', function(done) {
       var stack = deflect([
         function(error, list, next) {
-          next([ concat('A'), concat('B') ]);
+          next([concat('A'), concat('B')]);
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A', 'B' ]);
+          expect(list).to.eql(['A', 'B']);
           next();
         }
       ]);
@@ -94,10 +94,10 @@ describe('Deflect', function() {
     it('works just before the final callback', function(done) {
       deflect([
         function(error, list, next) {
-          next([ concat('A'), concat('B') ]);
+          next([concat('A'), concat('B')]);
         }
       ])(null, [], function(error, list) {
-        expect(list).to.eql([ 'A', 'B' ]);
+        expect(list).to.eql(['A', 'B']);
         done();
       });
     });
@@ -105,14 +105,14 @@ describe('Deflect', function() {
     it('resumes with the next function on the stack', function(done) {
       deflect([
         function(error, list, next) {
-          next([ concat('A'), concat('B') ]);
+          next([concat('A'), concat('B')]);
         },
         concat('C'),
         function(error, list, next) {
           next(error, list.concat('D'));
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A', 'B', 'C', 'D' ]);
+          expect(list).to.eql(['A', 'B', 'C', 'D']);
           next();
         }
       ])(null, [], done);
@@ -126,7 +126,7 @@ describe('Deflect', function() {
           next(concat('A'), error, list);
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A' ]);
+          expect(list).to.eql(['A']);
           next();
         }
       ])(null, [], done);
@@ -141,7 +141,7 @@ describe('Deflect', function() {
           next(concat('A'));
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A' ]);
+          expect(list).to.eql(['A']);
           next();
         }
       ])(null, done);
@@ -153,7 +153,7 @@ describe('Deflect', function() {
           next(concat('A'));
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A' ]);
+          expect(list).to.eql(['A']);
           next();
         }
       ]);
@@ -169,7 +169,7 @@ describe('Deflect', function() {
           next(concat('A'));
         }
       ])(null, [], function(error, list) {
-        expect(list).to.eql([ 'A' ]);
+        expect(list).to.eql(['A']);
         done();
       });
     });
@@ -184,7 +184,7 @@ describe('Deflect', function() {
           next(error, list.concat('C'));
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A', 'B', 'C' ]);
+          expect(list).to.eql(['A', 'B', 'C']);
           next();
         }
       ])(null, [], done);
@@ -198,7 +198,7 @@ describe('Deflect', function() {
           next(concat('B'), error, list.concat('A'));
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A', 'B' ]);
+          expect(list).to.eql(['A', 'B']);
           next();
         }
       ])(null, [], done);
@@ -210,7 +210,7 @@ describe('Deflect', function() {
           next(concat('B'), error, list.concat('A'));
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A', 'B' ]);
+          expect(list).to.eql(['A', 'B']);
           next();
         }
       ]);
@@ -226,7 +226,7 @@ describe('Deflect', function() {
           next(concat('A'), error, list);
         }
       ])(null, [], function(error, list) {
-        expect(list).to.eql([ 'A' ]);
+        expect(list).to.eql(['A']);
         done();
       });
     });
@@ -240,21 +240,21 @@ describe('Deflect', function() {
           next(error, list.concat('C'));
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A', 'B', 'C' ]);
+          expect(list).to.eql(['A', 'B', 'C']);
           next();
         }
       ])(null, [], done);
     });
   });
 
-  describe('next([ function(){} ], ...)', function() {
+  describe('next([function(){}], ...)', function() {
     it('unshifts multiple functions onto the stack', function(done) {
       deflect([
         function(error, list, next) {
-          next([ concat('B'), concat('C') ], error, list.concat('A'));
+          next([concat('B'), concat('C')], error, list.concat('A'));
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A', 'B', 'C' ]);
+          expect(list).to.eql(['A', 'B', 'C']);
           next();
         }
       ])(null, [], done);
@@ -263,10 +263,10 @@ describe('Deflect', function() {
     it('does not permanently mutate the stack function', function(done) {
       var stack = deflect([
         function(error, list, next) {
-          next([ concat('B'), concat('C') ], error, list.concat('A'));
+          next([concat('B'), concat('C')], error, list.concat('A'));
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A', 'B', 'C' ]);
+          expect(list).to.eql(['A', 'B', 'C']);
           next();
         }
       ]);
@@ -279,10 +279,10 @@ describe('Deflect', function() {
     it('works just before the final callback', function(done) {
       deflect([
         function(error, list, next) {
-          next([ concat('A'), concat('B') ], error, list);
+          next([concat('A'), concat('B')], error, list);
         }
       ])(null, [], function(error, list) {
-        expect(list).to.eql([ 'A', 'B' ]);
+        expect(list).to.eql(['A', 'B']);
         done();
       });
     });
@@ -290,13 +290,13 @@ describe('Deflect', function() {
     it('resumes with the next function on the stack', function(done) {
       deflect([
         function(error, list, next) {
-          next([ concat('B'), concat('C') ], error, list.concat('A'));
+          next([concat('B'), concat('C')], error, list.concat('A'));
         },
         function(error, list, next) {
           next(error, list.concat('D'));
         },
         function(error, list, next) {
-          expect(list).to.eql([ 'A', 'B', 'C', 'D' ]);
+          expect(list).to.eql(['A', 'B', 'C', 'D']);
           next();
         }
       ])(null, [], done);
@@ -356,7 +356,7 @@ describe('Deflect', function() {
 
       deflect([
         function(next) {
-          next({ message: message });
+          next({message: message});
         },
         function(error, next) {
           expect(error.message).to.equal(message);

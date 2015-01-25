@@ -80,7 +80,7 @@
           // at the font, to be called next.
           if (firstIsAFunction || Array.isArray(firstArgument)) {
             var insertedFunctions = firstIsAFunction ?
-              [ callbackArguments.shift() ] :
+              [callbackArguments.shift()] :
               callbackArguments.shift();
             nextFunctions = insertedFunctions
               .concat(remainingFunctions);
@@ -90,7 +90,7 @@
 
           // If the callback is called with no additional arguments,
           // pass the same list of arguments to the next function.
-          if(callbackArguments.length === 0) {
+          if (callbackArguments.length === 0) {
             callbackArguments = invocationArguments;
           }
 
@@ -120,7 +120,7 @@
           currentFunction.apply(
             root, invocationArguments.concat(nextCallback)
           );
-        } catch(error) {
+        } catch (error) {
           invocationArguments[0] = error;
           nextCallback.apply(root, invocationArguments);
         }

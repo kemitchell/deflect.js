@@ -6,14 +6,14 @@ var deflect = require('..');
 // Fake remote database asynchronous get function
 var getValueAsync = (function() {
   var DATA = {
-    a: { message: 'A!' },
-    b: { message: 'B!' }
+    a: {message: 'A!'},
+    b: {message: 'B!'}
   };
 
   return function(key, callback) {
     process.nextTick(function() {
       if (key === 'c') {
-        callback({ status: 500 });
+        callback({status: 500});
       } else {
         callback(null, DATA[key]);
       }
@@ -60,7 +60,7 @@ describe('HTTP Server Example', function() {
         if (response && !response.status) {
           next(error, request, {
             status: 200,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(response)
           });
         } else {
@@ -72,10 +72,10 @@ describe('HTTP Server Example', function() {
       function(error, request, response, next) {
         // If there's an error that hasn't been handled, respond 500.
         if (error) {
-          next(null, request, { status: 500 });
+          next(null, request, {status: 500});
         // If there's no error but no response, either, respond 404.
         } else if (!response) {
-          next(error, request, { status: 404 });
+          next(error, request, {status: 404});
         // Otherwise, pass through.
         } else {
           next();
@@ -86,7 +86,7 @@ describe('HTTP Server Example', function() {
     this.app = supertest(function(incomingMessage, serverResponse) {
       handlerStack(
         null, // no error to start
-        { url: incomingMessage.url, method: incomingMessage.method },
+        {url: incomingMessage.url, method: incomingMessage.method},
         null, // no response object to start
         // Write our response to the `http.serverResponse` object.
         function(error, request, response) {
