@@ -5,7 +5,7 @@ deflect.js
 [![Bower version](https://img.shields.io/bower/v/deflect.svg)](http://bower.io/search/?q=deflect)
 [![build status](https://img.shields.io/travis/kemitchell/deflect.js.svg)](http://travis-ci.org/kemitchell/deflect.js)
 
-Dynamic stacks of error-first continuation passing functions
+Dynamically stack error-first continuation passing functions
 
 For example:
 

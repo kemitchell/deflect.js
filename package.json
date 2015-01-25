@@ -1,6 +1,6 @@
 {
   "name": "deflect",
-  "description": "dynamic stacks of error-first continuation passing functions",
+  "description": "dynamically compose error-first continuation passing functions",
   "version": "0.0.4",
   "main": "deflect.js",
   "license": "Apache-2.0",
